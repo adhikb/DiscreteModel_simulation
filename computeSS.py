@@ -8,11 +8,13 @@ import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib import colors
 import random
+import itertools
 
-mypath = [['time','BDH2', 'BDH2FE', 'CD163', 'CD91', 'CYTFPN', 'DMT', 'EHEME', "EXIL6", 'EXTNF',"FPNR", \
+mypath = [['time','BDH2', 'BDH2FE', 'CYTFPN', 'DMT', 'EHEME', "EXIL6", 'EXTNF',"FPNR", \
            'FT','FTFE','FUNGUS','HB', 'HEP', 'HO1', 'HP', 'HPX', 'IHEME', 'INIL6', 'INTNF', 'IRP',\
            'LIP', 'MEMFPN','NTBI', 'SIGNAL', 'TF', 'TFR1', 'ZIP']]
 
+N = 27 #total nodes
 def get3ss(trydict, count):
     od =OrderedDict(sorted(trydict.items(), key=lambda t: t[0]))
     input_state = od.values()
@@ -24,8 +26,6 @@ def get3ss(trydict, count):
     new_BDH2 = od.get('IRP') #min([cont(od.get('IRP'), od.get('BDH2')), cont(notfn(od.get('EXTNF')), od.get('BDH2'))])
     
     new_BDH2FE = min([od.get('BDH2'), od.get('LIP')])
-    new_CD163 = od.get("CD163")
-    new_CD91 = od.get("CD91")
     
     new_DMT = max([                           \
         cont(od.get('EXTNF'), od.get('DMT')), \
@@ -60,7 +60,7 @@ def get3ss(trydict, count):
     
     new_IHEME = cont(min([   \
          notfn(od.get("HO1")), \
-         max([min([od.get("EHEME"), od.get("HPX"), od.get("CD163")]), min([od.get("HB"), od.get("HP"), od.get("CD91")])])]), \
+         max([min([od.get("EHEME"), od.get("HPX")]), min([od.get("HB"), od.get("HP")])])]), \
             od.get("IHEME"))
        
         
@@ -113,7 +113,7 @@ def get3ss(trydict, count):
     new_TFR1 = max([cont(od.get("IRP"), od.get("TFR1")), od.get("SIGNAL")]) #max([cont(od.get("IRP"), od.get("TFR1")), cont(od.get("EXTNF"), od.get("TFR1"))])#cont(od.get("IRP"), od.get("TFR1"))#
     new_ZIP = cont(od.get("EXTNF"), od.get("ZIP"))
     
-    newd = {'BDH2':new_BDH2, 'BDH2FE':new_BDH2FE, 'CD163':new_CD163, 'CD91':new_CD91,            \
+    newd = {'BDH2':new_BDH2, 'BDH2FE':new_BDH2FE,            \
             'DMT':new_DMT, 'EHEME':new_EHEME, 'EXIL6':new_EXIL6, 'EXTNF':new_EXTNF, 'FPNR':new_FPNR, \
             'CYTFPN':new_CYTFPN, 'MEMFPN':new_MEMFPN, 'FT':new_FT,                \
              'FTFE':new_FTFE, 'FUNGUS':new_FUNGUS, 'HB':new_HB, 'HEP':new_HEP, 'HO1':new_HO1,      \
@@ -163,16 +163,12 @@ def cont(src, old_tgt):
 
 #give your fixed input here. This model has FPNR as constitutive expression. 
 #FUNGUS 1 or 2 behaves as the same. For fungal absence, give a value of 0, eles 1 or 2. 
-
-fixedvars = { "LIP":1, "TF":1, "NTBI":1, "FUNGUS":2, "EHEME":1, "HP":1, "HB":1, "CD91":1, "CD163":1, "HPX":1, "FPNR":2,"HEP":1, "MEMFPN":1} 
-
+fixedvars = { "LIP":1, "TF":1, "NTBI":1, "FUNGUS":2, "EHEME":1, "HP":1, "HB":1,"HPX":1, "FPNR":2,"HEP":1, "MEMFPN":1} 
 # all nodes in order
-nn = ['SIGNAL','FPNR', 'TF', 'NTBI', 'EHEME', 'FUNGUS', 'INIL6','INTNF', 'EXTNF', 'EXIL6', 'HEP', 'CYTFPN','MEMFPN', 'LIP', 'IRP', 'TFR1', 'DMT', 'ZIP', 'FT', 'FTFE', 'BDH2', 'BDH2FE', 'HP', 'HB', 'HPX', 'CD163', 'CD91', 'HO1', 'IHEME']
-
-#give initial update to the model
-vv = [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1,1] 
+nn = ['SIGNAL','FPNR', 'TF', 'NTBI', 'EHEME', 'FUNGUS', 'INIL6','INTNF', 'EXTNF', 'EXIL6', 'HEP', 'CYTFPN','MEMFPN', 'LIP', 'IRP', 'TFR1', 'DMT', 'ZIP', 'FT', 'FTFE', 'BDH2', 'BDH2FE', 'HP', 'HB', 'HPX', 'HO1', 'IHEME']
+#give desired initial update to the model to generate steady state. 
+vv = [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1] 
 nv = dict(zip(nn, vv))
-
 #nv.update({"TF":1})
 for k,v in nv.items():
     if k in fixedvars.keys():
@@ -180,8 +176,19 @@ for k,v in nv.items():
 print len(nv)
 get3ss(nv, count =0)  
 
-## View the trajectory of the simulation. Generate other plots using myarr.
+# update with random initial values> This will give states at intermediate steps and the steady state for each input. 
+for _ in itertools.repeat(None, n): #set any #n of initial updates 
+    nodetemp = dict(zip(nn, [random.randint(0,2) for i in [0] * N])) #total N nodes
+    #print nodetemp
+    for k,v in nodetemp.items():
+        if k in fixedvars.keys():
+            nodetemp.update({k:fixedvars[k]})
+    #print "nodetemp", nodetemp
+    get3ss(nodetemp, count = 0)
+     
 
+
+## View the trajectory of the simulation using this code on a heatmap. You can generate any other (custom) plots with states stored in mypath. 
 myarr = np.array(mypath)
 mydf= pd.DataFrame(myarr[1:,1:], columns = myarr[0,1:], index = myarr[1:,0])
 #print mydf
