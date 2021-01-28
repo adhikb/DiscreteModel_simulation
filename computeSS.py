@@ -23,7 +23,7 @@ def get3ss(trydict, count):
     
     ########## Give your logical rules here ###########
     
-    new_BDH2 = od.get('IRP') #min([cont(od.get('IRP'), od.get('BDH2')), cont(notfn(od.get('EXTNF')), od.get('BDH2'))])
+    new_BDH2 = od.get('IRP') 
     
     new_BDH2FE = min([od.get('BDH2'), od.get('LIP')])
     
@@ -110,7 +110,7 @@ def get3ss(trydict, count):
     new_SIGNAL = od.get("FUNGUS")
     new_TF = od.get("TF")
     
-    new_TFR1 = max([cont(od.get("IRP"), od.get("TFR1")), od.get("SIGNAL")]) #max([cont(od.get("IRP"), od.get("TFR1")), cont(od.get("EXTNF"), od.get("TFR1"))])#cont(od.get("IRP"), od.get("TFR1"))#
+    new_TFR1 = max([cont(od.get("IRP"), od.get("TFR1")), od.get("SIGNAL")]) 
     new_ZIP = cont(od.get("EXTNF"), od.get("ZIP"))
     
     newd = {'BDH2':new_BDH2, 'BDH2FE':new_BDH2FE,            \
