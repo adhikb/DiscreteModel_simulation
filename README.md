@@ -2,7 +2,7 @@
 This code computes steady states for 3 state discrete models.
 
 
-# Prerequisites
+## Prerequisites
 Running the code depends on the following packages.
 
 Python 2.7.16
